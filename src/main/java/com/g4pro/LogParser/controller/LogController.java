@@ -4,6 +4,7 @@ import com.g4pro.LogParser.entity.ParsedError;
 import com.g4pro.LogParser.entity.StackTraceEntry;
 import com.g4pro.LogParser.repository.ParsedErrorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +26,9 @@ public class LogController {
     @PostMapping("/upload")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+        System.out.println("Received file: " + file.getOriginalFilename());
+        System.out.println("Size: " + file.getSize());
+        System.out.println("Content-Type: " + file.getContentType());
 
         String line;
         ParsedError currentError = null;
@@ -71,8 +75,10 @@ public class LogController {
         // Save the last error after EOF
         if (currentError != null) {
             errorRepo.save(currentError);
+            System.out.println("Angular File not parsed");
         }
-
+        System.out.println("Angular File Uploaded");
+//        System.out.println(currentError.toString());
         return ResponseEntity.ok("Log parsed and saved.");
     }
 
@@ -82,8 +88,15 @@ public class LogController {
         return errorRepo.findAll();
     }
 
+    @DeleteMapping("/deleteLog")
+    public ResponseEntity<String> deleteLog(){
+        errorRepo.deleteAll();
+        return  new ResponseEntity<String>("Previous Log Deleted", HttpStatus.OK);
+    }
+
     @GetMapping("/home")
     public String printHome() {
         return "Home";
     }
 }
+

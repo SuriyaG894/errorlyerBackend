@@ -51,6 +51,10 @@ public class ErrorService {
         return errorRepo.save(errorDTO);
     }
 
+    public ErrorDTO saveNewError(ErrorDTO e){
+        return errorRepo.save(e);
+    }
+
     
     public ErrorDTO getErrorById(long id){
         return errorRepo.findById(id).orElse(null);

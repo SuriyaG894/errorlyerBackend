@@ -35,6 +35,19 @@ public class ParsedError {
         return id;
     }
 
+    @Override
+    public String toString() {
+        return "ParsedError{" +
+                "id=" + id +
+                ", timestamp='" + timestamp + '\'' +
+                ", level='" + level + '\'' +
+                ", thread='" + thread + '\'' +
+                ", exceptionName='" + exceptionName + '\'' +
+                ", errorMessage='" + errorMessage + '\'' +
+                ", stackTrace=" + stackTrace +
+                '}';
+    }
+
     public void setId(Long id) {
         this.id = id;
     }

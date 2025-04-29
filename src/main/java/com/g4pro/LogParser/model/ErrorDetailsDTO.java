@@ -17,6 +17,27 @@ public class ErrorDetailsDTO {
     private List<String> stackTrace = new ArrayList<>();
     private String relevantCode;
     private LocalDateTime timestamp;
+    private String Errortype = "Console";
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    private String username;
+
+    public String getErrortype() {
+        return Errortype;
+    }
+
+    public void setErrortype(String errortype) {
+        Errortype = errortype;
+    }
+
+
 
     public Long getId() {
         return id;

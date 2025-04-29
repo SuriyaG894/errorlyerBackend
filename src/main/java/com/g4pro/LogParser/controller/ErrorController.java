@@ -33,7 +33,7 @@ public class ErrorController {
             if(!list.isEmpty()){
                 return new ResponseEntity<>(list,HttpStatus.OK);
             }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         @GetMapping("getById/{id}")

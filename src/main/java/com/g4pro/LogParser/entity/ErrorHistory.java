@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class ParsedError {
+public class ErrorHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,11 +18,7 @@ public class ParsedError {
     private String exceptionName;
     private String errorMessage;
     private String username;
-    @OneToMany(mappedBy = "parsedError", cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<StackTraceEntry> stackTrace = new ArrayList<>();
-
-    public ParsedError() {
-    }
+    private String errorSeachedThrough = "log";
 
     public String getUsername() {
         return username;
@@ -32,41 +28,30 @@ public class ParsedError {
         this.username = username;
     }
 
-    public ParsedError(String timestamp, String level, String thread, String exceptionName, String errorMessage) {
+    @OneToMany(mappedBy = "errorHistory", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<ErrorHistoryStackTrace> stackTrace = new ArrayList<>();
+
+    public ErrorHistory() {
+    }
+
+    public ErrorHistory(String timestamp, String level, String thread, String exceptionName, String errorMessage, List<ErrorHistoryStackTrace> stackTrace,String username) {
         this.timestamp = timestamp;
         this.level = level;
         this.thread = thread;
         this.exceptionName = exceptionName;
         this.errorMessage = errorMessage;
+        this.stackTrace = stackTrace;
+        this.username = username;
+        this.errorSeachedThrough = "log";
     }
+
 
     public Long getId() {
         return id;
     }
 
-    @Override
-    public String toString() {
-        return "ParsedError{" +
-                "id=" + id +
-                ", timestamp='" + timestamp + '\'' +
-                ", level='" + level + '\'' +
-                ", thread='" + thread + '\'' +
-                ", exceptionName='" + exceptionName + '\'' +
-                ", errorMessage='" + errorMessage + '\'' +
-                ", stackTrace=" + stackTrace +
-                '}';
-    }
-
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public List<StackTraceEntry> getStackTrace() {
-        return stackTrace;
-    }
-
-    public void setStackTrace(List<StackTraceEntry> stackTrace) {
-        this.stackTrace = stackTrace;
     }
 
     public String getTimestamp() {
@@ -107,5 +92,13 @@ public class ParsedError {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public List<ErrorHistoryStackTrace> getStackTrace() {
+        return stackTrace;
+    }
+
+    public void setStackTrace(List<ErrorHistoryStackTrace> stackTrace) {
+        this.stackTrace = stackTrace;
     }
 }

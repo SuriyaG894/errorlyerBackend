@@ -1,7 +1,9 @@
 package com.g4pro.LogParser.controller;
 
+import com.g4pro.LogParser.model.ErrorDTO;
 import com.g4pro.LogParser.model.ErrorDetailsDTO;
 import com.g4pro.LogParser.service.ErrorDetailsService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,16 +11,31 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import com.g4pro.LogParser.service.ErrorService;
+
 @RestController
 public class ErrorDetailsController {
 
     @Autowired
     private ErrorDetailsService errorDetailsService;
 
+    @Autowired
+    private ErrorService errorService;
+
     @PostMapping("/saveErrorDetails")
     public ResponseEntity<ErrorDetailsDTO> saveErrorDetails(@RequestBody ErrorDetailsDTO errorDetailsDTO) {
         ErrorDetailsDTO savedError = errorDetailsService.saveErrorDetails(errorDetailsDTO);
         return new ResponseEntity<>(savedError, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/addNewError")
+    public ResponseEntity<?>addNewError(@RequestBody ErrorDTO errorDTO){
+        ErrorDTO e = errorService.saveNewError(errorDTO);
+        if(e!=null){
+            return new ResponseEntity<>(e,HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        
     }
 
     @GetMapping("/getAllErrorDetails")

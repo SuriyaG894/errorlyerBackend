@@ -19,6 +19,16 @@ public class ErrorDetailsDTO {
     private LocalDateTime timestamp;
     private String Errortype = "Console";
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    private String username;
+
     public String getErrortype() {
         return Errortype;
     }

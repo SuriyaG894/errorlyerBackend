@@ -4,6 +4,9 @@ import com.g4pro.LogParser.model.ErrorDetails;
 import com.g4pro.LogParser.model.ErrorDetailsDTO;
 import com.g4pro.LogParser.repository.ErrorDetailsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +25,8 @@ public class ErrorDetailsService {
         return convertToDTO(savedErrorDetails);
     }
 
-    public List<ErrorDetailsDTO> getAllErrorDetails() {
-        return errorDetailsRepo.findAll().stream()
+    public List<ErrorDetailsDTO> getAllErrorDetails(String username) {
+        return errorDetailsRepo.getUserSpecificDetails(username).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -54,6 +57,7 @@ public class ErrorDetailsService {
         entity.setFileName(dto.getFileName());
         entity.setStackTrace(dto.getStackTrace());
         entity.setRelevantCode(dto.getRelevantCode());
+        entity.setUsername((dto.getUsername()));
         return entity;
     }
 
@@ -68,6 +72,7 @@ public class ErrorDetailsService {
         dto.setStackTrace(entity.getStackTrace());
         dto.setRelevantCode(entity.getRelevantCode());
         dto.setTimestamp(entity.getTimestamp());
+        dto.setUsername(entity.getUsername());
         return dto;
     }
 
@@ -78,5 +83,12 @@ public class ErrorDetailsService {
                 .collect(Collectors.toList());
     }
 
+    public ResponseEntity<?> getConsoleErrorCount(String username) {
+        return new ResponseEntity<>(errorDetailsRepo.getCountByUsername(username), HttpStatus.OK);
+    }
 
+
+    public ResponseEntity<?> findByExceptionTypeAndUsername(String exceptionType, String username) {
+         return new ResponseEntity<>(errorDetailsRepo.findByExceptionTypeAndUsername(exceptionType,username),HttpStatus.OK);
+    }
 }

@@ -19,7 +19,7 @@ public class AuthService {
             throw new Exception("User Already Exists");
         }
         userRepo.save(user);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(user,HttpStatus.CREATED);
     }
 
 }

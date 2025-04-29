@@ -1,9 +1,15 @@
 package com.g4pro.LogParser.controller;
 
+import com.g4pro.LogParser.entity.LogHistory;
 import com.g4pro.LogParser.entity.ParsedError;
 import com.g4pro.LogParser.entity.StackTraceEntry;
+import com.g4pro.LogParser.model.CombinedLogHistoryDTO;
+import com.g4pro.LogParser.repository.LogHistoryRepo;
 import com.g4pro.LogParser.repository.ParsedErrorRepository;
+import com.g4pro.LogParser.service.CombinedHistoryService;
+import com.g4pro.LogParser.service.LogHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,10 +26,18 @@ import java.util.regex.Pattern;
 public class LogController {
 
     @Autowired
-    ParsedErrorRepository errorRepo;
+    private ParsedErrorRepository parsedErrorRepository;
+
+    @Autowired
+    private LogHistoryService logHistoryService;
+
+    @Autowired
+    private CombinedHistoryService combinedHistoryService;
+
+
 
     @PostMapping("/upload")
-    public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file,@RequestParam("username") String username) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
 
         String line;
@@ -38,7 +52,8 @@ public class LogController {
             if (headerMatcher.find()) {
                 // Save the previous error (if exists)
                 if (currentError != null) {
-                    errorRepo.save(currentError);
+                    currentError.setUsername(username);
+                    parsedErrorRepository.save(currentError);
                 }
 
                 currentError = new ParsedError();
@@ -49,7 +64,7 @@ public class LogController {
             } else if (currentError != null) {
                 Matcher exceptionMatcher = exceptionLine.matcher(line);
                 if (exceptionMatcher.find()) {
-                    currentError.setExceptionName(exceptionMatcher.group(1));
+                    currentError.setExceptionName(!exceptionMatcher.group(1).isEmpty() ?exceptionMatcher.group(1).split("\\.")[2]:"");
                     currentError.setErrorMessage(exceptionMatcher.group(2)); // override error message if better
                 } else {
                     Matcher stackMatcher = stackTraceLine.matcher(line);
@@ -70,7 +85,8 @@ public class LogController {
 
         // Save the last error after EOF
         if (currentError != null) {
-            errorRepo.save(currentError);
+            currentError.setUsername(username);
+            parsedErrorRepository.save(currentError);
         }
 
         return ResponseEntity.ok("Log parsed and saved.");
@@ -79,11 +95,57 @@ public class LogController {
 
     @GetMapping
     public List<ParsedError> getAll() {
-        return errorRepo.findAll();
+        return parsedErrorRepository.findAll();
     }
 
     @GetMapping("/home")
     public String printHome() {
         return "Home";
     }
+
+    @PostMapping("/logHistory")
+    public ResponseEntity<?> saveLogHistory(@RequestBody LogHistory logHistory){
+        return logHistoryService.saveLogHistory(logHistory);
+    }
+
+    @DeleteMapping("/deleteLog")
+    public void deleteLog(){
+        parsedErrorRepository.deleteAll();
+    }
+
+    @PostMapping("/saveCombinedLogHistory")
+    public ResponseEntity<?> saveCombinedLogHistory(@RequestBody List<CombinedLogHistoryDTO> combinedLogHistoryDTO){
+//        System.out.println(combinedLogHistoryDTO.getFirst().getStackTrace().toString());
+        return combinedHistoryService.saveCombinedLogHistory(combinedLogHistoryDTO);
+    }
+
+    @GetMapping("/getLogHistory/{username}")
+    public ResponseEntity<?> getLogHistory(@PathVariable("username") String username){
+        return combinedHistoryService.findByUsername(username);
+    }
+
+    @GetMapping("/getLogExceptionCount/{username}")
+    public ResponseEntity<?> getLogExceptionCount(@PathVariable("username") String username){
+        return combinedHistoryService.getLogExceptionCount(username);
+    }
+
+    @GetMapping("/getLogHistoryExceptionDetail/{exceptionName}/{username}")
+    public ResponseEntity<?> getLogHistoryExceptionDetail(@PathVariable("exceptionName") String exceptionName,@PathVariable("username") String username){
+        return combinedHistoryService.getLogHistoryExceptionDetail(exceptionName,username);
+    }
+
+    @GetMapping("/getLogFileName/{username}")
+    public ResponseEntity<?> getLogFileName(@PathVariable("username") String username){
+        return logHistoryService.findByUsername(username);
+    }
+
+    @GetMapping("/getLogFileCount/{username}")
+    public ResponseEntity<?> getLogFileCount(@PathVariable("username") String username){
+        return logHistoryService.getCountByUsername(username);
+    }
+
+//    @GetMapping("/getCount")
+//    public void getCount(){
+//        return logHistoryService.getLogCount();
+//    }
 }

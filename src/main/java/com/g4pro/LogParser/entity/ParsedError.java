@@ -17,10 +17,19 @@ public class ParsedError {
     private String thread;
     private String exceptionName;
     private String errorMessage;
+    private String username;
     @OneToMany(mappedBy = "parsedError", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<StackTraceEntry> stackTrace = new ArrayList<>();
 
     public ParsedError() {
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public ParsedError(String timestamp, String level, String thread, String exceptionName, String errorMessage) {

@@ -57,6 +57,17 @@ public class ErrorDetails {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime timestamp;
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Column(name="username")
+    private String username;
+
     public String getExceptionType() {
         return exceptionType;
     }

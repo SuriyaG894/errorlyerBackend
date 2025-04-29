@@ -5,6 +5,7 @@ import com.g4pro.LogParser.repository.ErrorRepo;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.FileReader;
@@ -51,9 +52,13 @@ public class ErrorService {
         return errorRepo.save(errorDTO);
     }
 
-    
+    public ErrorDTO saveNewError(ErrorDTO e){
+        return errorRepo.save(e);
+    }
+
     public ErrorDTO getErrorById(long id){
         return errorRepo.findById(id).orElse(null);
     }
+
 
 }
